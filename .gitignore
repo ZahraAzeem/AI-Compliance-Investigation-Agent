@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+
+# Secrets and local environment
+.env
+.env.*
+!.env.example
+
+# Frontend
+node_modules/
+.next/
+out/
+
+# Editors and operating systems
+.DS_Store
+.idea/
+.vscode/
+
+# Personal planning and interview notes
+PROJECT_PLAN.md
+LEARNING_NOTES.md
+INTERVIEW_PREP.md
+
+# Local runtime data
+*.log
+data/*.db
+data/*.sqlite*
