@@ -1,0 +1,148 @@
+{
+  "info": {
+    "_postman_id": "b3ab08ba-05aa-46c1-b632-594ea1496d0f",
+    "name": "AI Compliance Investigation Agent",
+    "description": "Runnable API requests added milestone by milestone. Milestone 1 covers liveness, readiness, request correlation, and the versioned API entrypoint.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://127.0.0.1:8000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Milestone 1 - FastAPI Foundation",
+      "item": [
+        {
+          "name": "Health - Liveness",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            },
+            "description": "Checks whether the FastAPI process is alive. This does not depend on OpenAI availability."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('returns HTTP 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('returns liveness status and request ID', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('ok');",
+                  "  pm.expect(pm.response.headers.get('X-Request-ID')).to.be.ok;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Ready - Configuration",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Request-ID",
+                "value": "postman-ready-check"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/ready",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "ready"
+              ]
+            },
+            "description": "Checks whether required configuration is present. It reports only safe status metadata and never returns the API key."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('returns HTTP 200 when configured', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "pm.test('preserves the safe request ID', function () {",
+                  "  pm.expect(pm.response.headers.get('X-Request-ID')).to.eql('postman-ready-check');",
+                  "});",
+                  "pm.test('does not expose a credential', function () {",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('ready');",
+                  "  pm.expect(body.checks.openai_api_key).to.eql('ok');",
+                  "  pm.expect(pm.response.text()).not.to.include('sk-');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "API v1 - Information",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "v1"
+              ]
+            },
+            "description": "Confirms that the stable, versioned API namespace is available."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('returns API version information', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.version).to.eql('0.1.0');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
