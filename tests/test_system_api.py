@@ -16,7 +16,7 @@ def _client(settings: Settings, *, raise_app_exceptions: bool = True) -> httpx.A
 
 @pytest.mark.asyncio
 async def test_health_is_live_without_openai_configuration() -> None:
-    settings = Settings(_env_file=None, environment="test", openai_api_key=None)
+    settings = Settings(_env_file=None, environment="test", groq_api_key=None)
 
     async with _client(settings) as client:
         response = await client.get("/health")
@@ -32,7 +32,7 @@ async def test_health_is_live_without_openai_configuration() -> None:
 
 @pytest.mark.asyncio
 async def test_readiness_fails_safely_without_required_configuration() -> None:
-    settings = Settings(_env_file=None, environment="test", openai_api_key=None)
+    settings = Settings(_env_file=None, environment="test", groq_api_key=None)
 
     async with _client(settings) as client:
         response = await client.get("/ready", headers={REQUEST_ID_HEADER: "test-request-123"})
@@ -52,7 +52,7 @@ async def test_readiness_fails_safely_without_required_configuration() -> None:
 @pytest.mark.asyncio
 async def test_readiness_reports_presence_without_exposing_secret() -> None:
     secret = "test-secret-that-must-not-be-returned"
-    settings = Settings(_env_file=None, environment="test", openai_api_key=secret)
+    settings = Settings(_env_file=None, environment="test", groq_api_key=secret)
 
     async with _client(settings) as client:
         response = await client.get("/ready")
@@ -60,7 +60,7 @@ async def test_readiness_reports_presence_without_exposing_secret() -> None:
     assert response.status_code == 200
     assert response.json() == {
         "status": "ready",
-        "checks": {"openai_api_key": "ok"},
+        "checks": {"ai_provider": "ok", "ai_api_key": "ok"},
     }
     assert secret not in response.text
 

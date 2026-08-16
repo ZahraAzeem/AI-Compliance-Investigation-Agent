@@ -10,11 +10,13 @@ from starlette.exceptions import HTTPException
 
 from compliance_agent.api.errors import (
     http_exception_handler,
+    recommendation_exception_handler,
     unexpected_exception_handler,
     validation_exception_handler,
 )
 from compliance_agent.api.routes.system import api_router, system_router
 from compliance_agent.config import Settings, get_settings
+from compliance_agent.services.recommendations import RecommendationError
 
 REQUEST_ID_HEADER = "X-Request-ID"
 _SAFE_REQUEST_ID = re.compile(r"^[A-Za-z0-9._-]{1,128}$")
@@ -49,6 +51,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
 
     app.add_exception_handler(HTTPException, http_exception_handler)
     app.add_exception_handler(RequestValidationError, validation_exception_handler)
+    app.add_exception_handler(RecommendationError, recommendation_exception_handler)
     app.add_exception_handler(Exception, unexpected_exception_handler)
 
     app.include_router(system_router)

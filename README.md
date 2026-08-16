@@ -11,6 +11,17 @@ python -m pip install --index-url https://pypi.org/simple -e '.[dev]'
 uvicorn compliance_agent.main:app --reload
 ```
 
+Configure the default Groq provider in the ignored `.env.local`:
+
+```dotenv
+AI_PROVIDER=groq
+GROQ_API_KEY=replace-with-a-local-key
+GROQ_MODEL=openai/gpt-oss-20b
+```
+
+Never paste a real key into source code, documentation, Git, Postman, or chat. OpenAI remains an
+optional provider selected with `AI_PROVIDER=openai` and its corresponding local configuration.
+
 The local API is available at `http://127.0.0.1:8000`:
 
 - `GET /health` checks whether the process is alive.
@@ -18,6 +29,7 @@ The local API is available at `http://127.0.0.1:8000`:
 - `GET /api/v1` is the versioned API entrypoint.
 - `POST /api/v1/cases/validate` validates a compliance case without storing it or calling AI.
 - `POST /api/v1/alerts/evaluate/transactions` evaluates fictional portfolio rules without AI.
+- `POST /api/v1/recommendations` returns a schema-validated AI recommendation for human review.
 - `GET /docs` opens the generated OpenAPI interface.
 
 ### Milestone 1 curl examples
@@ -92,6 +104,24 @@ curl --request POST \
 The sample deliberately triggers fictional thresholds: five qualifying non-family transfers and
 AED 25,000 in monthly outbound volume. The response contains typed, explainable mock alerts; it
 does not call AI, store a case, contact a screening provider, or actually block an account.
+
+### Milestone 4 curl example
+
+Generate a structured recommendation from the validated sample case:
+
+```bash
+curl --request POST \
+  --url http://127.0.0.1:8000/api/v1/recommendations \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'X-Request-ID: recommendation-demo' \
+  --data @examples/sample_case.json
+```
+
+This endpoint makes a provider API call, using Groq by default. It uses Structured Outputs,
+disables provider-side response storage for the request, returns safe model/latency/token
+metadata, and requires human review. It rejects recommendations that cite unknown case IDs or
+claim unsupported tool/policy evidence.
 
 Run local verification with:
 

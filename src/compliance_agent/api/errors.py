@@ -1,5 +1,6 @@
 """Stable public error contracts and FastAPI exception handlers."""
 
+import logging
 from typing import Any
 
 from fastapi import Request
@@ -7,6 +8,19 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from starlette.exceptions import HTTPException
+
+from compliance_agent.services.recommendations import (
+    RecommendationAuthenticationError,
+    RecommendationConfigurationError,
+    RecommendationError,
+    RecommendationInvalidOutputError,
+    RecommendationQuotaError,
+    RecommendationRateLimitError,
+    RecommendationRefusalError,
+    RecommendationTimeoutError,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorDetail(BaseModel):
@@ -67,3 +81,44 @@ async def unexpected_exception_handler(request: Request, _exc: Exception) -> JSO
         )
     )
     return JSONResponse(status_code=500, content=body.model_dump())
+
+
+async def recommendation_exception_handler(
+    request: Request,
+    exc: RecommendationError,
+) -> JSONResponse:
+    """Map expected provider failures without exposing SDK or credential details."""
+
+    if isinstance(exc, RecommendationInvalidOutputError):
+        logger.warning(
+            "AI recommendation output rejected: reason=%s request_id=%s",
+            exc.reason,
+            _request_id(request),
+        )
+    status_code, code, message = _recommendation_error_details(exc)
+    body = ErrorResponse(
+        error=ErrorDetail(
+            code=code,
+            message=message,
+            request_id=_request_id(request),
+        )
+    )
+    return JSONResponse(status_code=status_code, content=body.model_dump())
+
+
+def _recommendation_error_details(exc: RecommendationError) -> tuple[int, str, str]:
+    if isinstance(exc, RecommendationQuotaError):
+        return 429, "ai_quota_exhausted", "The AI project has no available API quota."
+    if isinstance(exc, RecommendationRateLimitError):
+        return 429, "ai_rate_limited", "The AI service is temporarily rate limited."
+    if isinstance(exc, RecommendationTimeoutError):
+        return 504, "ai_timeout", "The AI service did not respond before the timeout."
+    if isinstance(exc, RecommendationRefusalError):
+        return 422, "ai_refusal", "The AI service declined to analyze this case."
+    if isinstance(exc, RecommendationInvalidOutputError):
+        return 502, "ai_invalid_output", "The AI service returned an unusable response."
+    if isinstance(exc, RecommendationAuthenticationError):
+        return 503, "ai_authentication_failed", "The AI service is not configured correctly."
+    if isinstance(exc, RecommendationConfigurationError):
+        return 503, "ai_not_configured", "The AI service is not configured."
+    return 503, "ai_unavailable", "The AI service is temporarily unavailable."
