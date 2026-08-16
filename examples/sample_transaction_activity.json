@@ -1,0 +1,82 @@
+{
+  "evaluation_month": "2026-08-01",
+  "customer": {
+    "customer_id": "CUST-2048",
+    "full_name": "Omar Hassan",
+    "date_of_birth": "1991-03-18",
+    "country_of_residence": "AE",
+    "nationality_codes": ["EG"],
+    "occupation": "Sales manager",
+    "income_range": "AED 15,000-25,000 monthly",
+    "is_politically_exposed": false,
+    "account_opened_at": "2022-02-10",
+    "existing_risk_level": "medium"
+  },
+  "transactions": [
+    {
+      "transaction_id": "TX-AUG-001",
+      "occurred_at": "2026-08-02T08:15:00Z",
+      "amount": "5000.00",
+      "currency": "AED",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Sample Recipient One",
+      "counterparty_country": "PK",
+      "recipient_relationship": "friend",
+      "transfer_purpose": "goods_services",
+      "description": "Synthetic portfolio transaction"
+    },
+    {
+      "transaction_id": "TX-AUG-002",
+      "occurred_at": "2026-08-04T09:20:00Z",
+      "amount": "5000.00",
+      "currency": "AED",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Sample Recipient Two",
+      "counterparty_country": "IN",
+      "recipient_relationship": "business",
+      "transfer_purpose": "goods_services",
+      "description": "Synthetic portfolio transaction"
+    },
+    {
+      "transaction_id": "TX-AUG-003",
+      "occurred_at": "2026-08-06T10:25:00Z",
+      "amount": "5000.00",
+      "currency": "AED",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Sample Recipient Three",
+      "counterparty_country": "BD",
+      "recipient_relationship": "other",
+      "transfer_purpose": "education",
+      "description": "Synthetic portfolio transaction"
+    },
+    {
+      "transaction_id": "TX-AUG-004",
+      "occurred_at": "2026-08-08T11:30:00Z",
+      "amount": "5000.00",
+      "currency": "AED",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Sample Recipient Four",
+      "counterparty_country": "LK",
+      "recipient_relationship": "friend",
+      "transfer_purpose": "medical",
+      "description": "Synthetic portfolio transaction"
+    },
+    {
+      "transaction_id": "TX-AUG-005",
+      "occurred_at": "2026-08-10T12:35:00Z",
+      "amount": "5000.00",
+      "currency": "AED",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Sample Recipient Five",
+      "counterparty_country": "NP",
+      "recipient_relationship": "business",
+      "transfer_purpose": "other",
+      "description": "Synthetic portfolio transaction"
+    }
+  ]
+}

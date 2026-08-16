@@ -17,6 +17,7 @@ The local API is available at `http://127.0.0.1:8000`:
 - `GET /ready` checks whether required configuration is present without exposing secrets.
 - `GET /api/v1` is the versioned API entrypoint.
 - `POST /api/v1/cases/validate` validates a compliance case without storing it or calling AI.
+- `POST /api/v1/alerts/evaluate/transactions` evaluates fictional portfolio rules without AI.
 - `GET /docs` opens the generated OpenAPI interface.
 
 ### Milestone 1 curl examples
@@ -75,6 +76,22 @@ curl --request POST \
 
 The first call returns a deterministic summary. The second returns HTTP 422 using the same stable
 error envelope as other API failures. Neither call stores data or spends model tokens.
+
+### Milestone 3 curl examples
+
+Evaluate a fictional transaction batch that triggers two alerts:
+
+```bash
+curl --request POST \
+  --url http://127.0.0.1:8000/api/v1/alerts/evaluate/transactions \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --data @examples/sample_transaction_activity.json
+```
+
+The sample deliberately triggers fictional thresholds: five qualifying non-family transfers and
+AED 25,000 in monthly outbound volume. The response contains typed, explainable mock alerts; it
+does not call AI, store a case, contact a screening provider, or actually block an account.
 
 Run local verification with:
 

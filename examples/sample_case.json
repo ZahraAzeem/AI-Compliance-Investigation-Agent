@@ -14,6 +14,7 @@
       "PK"
     ],
     "occupation": "Textile importer",
+    "income_range": "AED 20,000-35,000 monthly",
     "is_politically_exposed": false,
     "account_opened_at": "2019-06-20",
     "existing_risk_level": "medium"
@@ -28,6 +29,8 @@
       "channel": "wire",
       "counterparty_name": "Northstar Trading LLC",
       "counterparty_country": "AE",
+      "recipient_relationship": "business",
+      "transfer_purpose": "goods_services",
       "description": "Invoice 4481"
     },
     {
@@ -39,7 +42,29 @@
       "channel": "wire",
       "counterparty_name": "Northstar Trading LLC",
       "counterparty_country": "AE",
+      "recipient_relationship": "business",
+      "transfer_purpose": "goods_services",
       "description": "Invoice 4499"
     }
-  ]
+  ],
+  "alert": {
+    "alert_type": "transaction_monitoring",
+    "alert_id": "ALT-DEMO-001",
+    "customer_id": "CUST-1042",
+    "created_at": "2026-08-15T08:55:00Z",
+    "rule_id": "sample-pattern-review",
+    "rule_version": "synthetic-portfolio-v1",
+    "summary": "Synthetic monitoring alert created for activity outside the supplied customer baseline.",
+    "control_action": "temporary_hold",
+    "related_transaction_ids": [
+      "TX-9001",
+      "TX-9002"
+    ],
+    "metrics": {
+      "evaluation_month": "2026-08-01",
+      "outbound_aed_total": "0.00",
+      "non_family_outbound_count": 2
+    },
+    "is_mock": true
+  }
 }

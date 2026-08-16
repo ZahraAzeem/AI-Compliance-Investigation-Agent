@@ -38,6 +38,8 @@ async def test_valid_case_endpoint_returns_deterministic_summary(
     assert response.json() == {
         "status": "valid",
         "case_id": "CASE-2026-001",
+        "case_type": "transaction_monitoring",
+        "alert_id": "ALT-DEMO-001",
         "transaction_count": 2,
     }
 
