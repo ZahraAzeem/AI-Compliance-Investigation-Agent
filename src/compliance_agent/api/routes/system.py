@@ -5,6 +5,7 @@ from typing import Annotated, Literal
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
+from compliance_agent.api.routes.alerts import router as alerts_router
 from compliance_agent.api.routes.cases import router as cases_router
 from compliance_agent.config import Settings, get_settings
 
@@ -22,6 +23,7 @@ class ReadinessResponse(BaseModel):
 
 system_router = APIRouter(tags=["system"])
 api_router = APIRouter(prefix="/api/v1", tags=["api"])
+api_router.include_router(alerts_router)
 api_router.include_router(cases_router)
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
 
