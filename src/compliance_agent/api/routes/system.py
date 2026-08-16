@@ -7,6 +7,7 @@ from pydantic import BaseModel
 
 from compliance_agent.api.routes.alerts import router as alerts_router
 from compliance_agent.api.routes.cases import router as cases_router
+from compliance_agent.api.routes.recommendations import router as recommendations_router
 from compliance_agent.config import Settings, get_settings
 
 
@@ -25,6 +26,7 @@ system_router = APIRouter(tags=["system"])
 api_router = APIRouter(prefix="/api/v1", tags=["api"])
 api_router.include_router(alerts_router)
 api_router.include_router(cases_router)
+api_router.include_router(recommendations_router)
 SettingsDependency = Annotated[Settings, Depends(get_settings)]
 
 
@@ -47,13 +49,16 @@ async def health(settings: SettingsDependency) -> HealthResponse:
 async def ready(settings: SettingsDependency) -> ReadinessResponse:
     """Return whether required service configuration is available."""
 
-    if not settings.has_openai_api_key:
+    if not settings.has_ai_api_key:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail="Required service configuration is unavailable.",
         )
 
-    return ReadinessResponse(status="ready", checks={"openai_api_key": "ok"})
+    return ReadinessResponse(
+        status="ready",
+        checks={"ai_provider": "ok", "ai_api_key": "ok"},
+    )
 
 
 @api_router.get("", response_model=HealthResponse)

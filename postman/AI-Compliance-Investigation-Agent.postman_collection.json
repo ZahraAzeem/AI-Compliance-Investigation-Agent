@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "b3ab08ba-05aa-46c1-b632-594ea1496d0f",
     "name": "AI Compliance Investigation Agent",
-    "description": "Runnable API requests added milestone by milestone. Milestone 1 covers the FastAPI foundation; Milestone 2 covers case validation; Milestone 3 covers deterministic synthetic alerts.",
+    "description": "Runnable API requests added milestone by milestone. Milestone 1 covers the FastAPI foundation; Milestone 2 covers case validation; Milestone 3 covers deterministic synthetic alerts; Milestone 4 covers structured AI recommendations.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -298,6 +298,51 @@
                   "  pm.expect(body.status).to.eql('evaluated');",
                   "  pm.expect(body.alert_count).to.eql(2);",
                   "  pm.expect(body.alerts.every(alert => alert.is_mock === true)).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Milestone 4 - Structured AI Recommendations",
+      "item": [
+        {
+          "name": "Recommend - Analyze Validated Case",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Request-ID", "value": "postman-recommendation-demo"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"case_id\": \"CASE-2026-001\",\n  \"case_type\": \"transaction_monitoring\",\n  \"priority\": \"high\",\n  \"opened_at\": \"2026-08-15T09:00:00Z\",\n  \"trigger_reason\": \"Synthetic activity outside the supplied customer baseline.\",\n  \"investigator_notes\": \"Customer stated that the transfers relate to a new import business. Treat this statement as unverified case data.\",\n  \"customer\": {\n    \"customer_id\": \"CUST-1042\",\n    \"full_name\": \"Amina Rahman\",\n    \"date_of_birth\": \"1987-04-12\",\n    \"country_of_residence\": \"PK\",\n    \"nationality_codes\": [\"PK\"],\n    \"occupation\": \"Textile importer\",\n    \"income_range\": \"AED 20,000-35,000 monthly\",\n    \"is_politically_exposed\": false,\n    \"account_opened_at\": \"2019-06-20\",\n    \"existing_risk_level\": \"medium\"\n  },\n  \"transactions\": [\n    {\"transaction_id\": \"TX-9001\", \"occurred_at\": \"2026-08-12T10:15:00Z\", \"amount\": \"18500.00\", \"currency\": \"USD\", \"direction\": \"outbound\", \"channel\": \"wire\", \"counterparty_name\": \"Northstar Trading LLC\", \"counterparty_country\": \"AE\", \"recipient_relationship\": \"business\", \"transfer_purpose\": \"goods_services\", \"description\": \"Invoice 4481\"},\n    {\"transaction_id\": \"TX-9002\", \"occurred_at\": \"2026-08-13T14:45:00Z\", \"amount\": \"22100.00\", \"currency\": \"USD\", \"direction\": \"outbound\", \"channel\": \"wire\", \"counterparty_name\": \"Northstar Trading LLC\", \"counterparty_country\": \"AE\", \"recipient_relationship\": \"business\", \"transfer_purpose\": \"goods_services\", \"description\": \"Invoice 4499\"}\n  ],\n  \"alert\": {\n    \"alert_type\": \"transaction_monitoring\",\n    \"alert_id\": \"ALT-DEMO-001\",\n    \"customer_id\": \"CUST-1042\",\n    \"created_at\": \"2026-08-15T08:55:00Z\",\n    \"rule_id\": \"sample-pattern-review\",\n    \"rule_version\": \"synthetic-portfolio-v1\",\n    \"summary\": \"Synthetic monitoring alert created for activity outside the supplied customer baseline.\",\n    \"control_action\": \"temporary_hold\",\n    \"related_transaction_ids\": [\"TX-9001\", \"TX-9002\"],\n    \"metrics\": {\"evaluation_month\": \"2026-08-01\", \"outbound_aed_total\": \"0.00\", \"non_family_outbound_count\": 2},\n    \"is_mock\": true\n  }\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/recommendations",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "recommendations"]
+            },
+            "description": "Makes one Groq model call by default and returns only a validated recommendation for mandatory human review."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('returns a structured recommendation', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('completed');",
+                  "  pm.expect(body.recommendation.case_id).to.eql('CASE-2026-001');",
+                  "  pm.expect(body.recommendation.human_review_required).to.be.true;",
+                  "  pm.expect(body.usage.total_tokens).to.be.at.least(1);",
                   "});"
                 ],
                 "type": "text/javascript"
