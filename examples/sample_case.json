@@ -1,0 +1,45 @@
+{
+  "case_id": "CASE-2026-001",
+  "case_type": "transaction_monitoring",
+  "priority": "high",
+  "opened_at": "2026-08-15T09:00:00Z",
+  "trigger_reason": "Three outbound wires exceeded the customer's recent monthly baseline.",
+  "investigator_notes": "Customer stated that the transfers relate to a new import business. Treat this statement as unverified case data.",
+  "customer": {
+    "customer_id": "CUST-1042",
+    "full_name": "Amina Rahman",
+    "date_of_birth": "1987-04-12",
+    "country_of_residence": "PK",
+    "nationality_codes": [
+      "PK"
+    ],
+    "occupation": "Textile importer",
+    "is_politically_exposed": false,
+    "account_opened_at": "2019-06-20",
+    "existing_risk_level": "medium"
+  },
+  "transactions": [
+    {
+      "transaction_id": "TX-9001",
+      "occurred_at": "2026-08-12T10:15:00Z",
+      "amount": "18500.00",
+      "currency": "USD",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Northstar Trading LLC",
+      "counterparty_country": "AE",
+      "description": "Invoice 4481"
+    },
+    {
+      "transaction_id": "TX-9002",
+      "occurred_at": "2026-08-13T14:45:00Z",
+      "amount": "22100.00",
+      "currency": "USD",
+      "direction": "outbound",
+      "channel": "wire",
+      "counterparty_name": "Northstar Trading LLC",
+      "counterparty_country": "AE",
+      "description": "Invoice 4499"
+    }
+  ]
+}
