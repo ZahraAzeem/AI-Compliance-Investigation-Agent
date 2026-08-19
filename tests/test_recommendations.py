@@ -98,7 +98,13 @@ class FakeProvider:
     def __init__(self, result: ProviderRecommendation) -> None:
         self.result = result
 
-    async def recommend(self, _case: InvestigationCase) -> ProviderRecommendation:
+    async def recommend(
+        self,
+        _case: InvestigationCase,
+        *,
+        tool_outcomes: object = None,
+    ) -> ProviderRecommendation:
+        del tool_outcomes
         return self.result
 
 
@@ -107,7 +113,13 @@ class SequenceProvider:
         self.results = results
         self.call_count = 0
 
-    async def recommend(self, _case: InvestigationCase) -> ProviderRecommendation:
+    async def recommend(
+        self,
+        _case: InvestigationCase,
+        *,
+        tool_outcomes: object = None,
+    ) -> ProviderRecommendation:
+        del tool_outcomes
         result = self.results[self.call_count]
         self.call_count += 1
         return result
@@ -216,6 +228,7 @@ async def test_openai_adapter_uses_structured_output_and_non_storage(
     assert kwargs["instructions"] == SYSTEM_INSTRUCTIONS
     assert "never claim an action was" in kwargs["instructions"]
     assert "avoid repeating names" in kwargs["instructions"]
+    assert "Do not label a country or jurisdiction high risk" in kwargs["instructions"]
     case_content = kwargs["input"][0]["content"]
     assert "<case_data>" in case_content
     assert case.investigator_notes in case_content

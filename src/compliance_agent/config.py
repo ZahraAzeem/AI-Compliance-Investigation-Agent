@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     ai_max_output_tokens: int = Field(default=2_000, ge=128, le=10_000)
     ai_max_output_retries: int = Field(default=1, ge=0, le=2)
     agent_max_tool_calls: int = Field(default=4, ge=1, le=10)
+    agent_max_elapsed_seconds: float = Field(default=60.0, gt=0, le=300)
 
     @property
     def selected_ai_api_key(self) -> SecretStr | None:

@@ -8,6 +8,7 @@ from compliance_agent.domain import (
     EvidenceSource,
     InvestigationCase,
 )
+from compliance_agent.services.tools import ToolCallOutcome
 
 
 class RecommendationError(Exception):
@@ -74,7 +75,12 @@ class ProviderRecommendation:
 class RecommendationProvider(Protocol):
     """Port implemented by an AI provider adapter and test fakes."""
 
-    async def recommend(self, case: InvestigationCase) -> ProviderRecommendation:
+    async def recommend(
+        self,
+        case: InvestigationCase,
+        *,
+        tool_outcomes: list[ToolCallOutcome] | None = None,
+    ) -> ProviderRecommendation:
         """Return a schema-validated recommendation for one validated case."""
 
 
@@ -90,12 +96,24 @@ class RecommendationService:
         self._provider = provider
         self._max_output_retries = max_output_retries
 
-    async def recommend(self, case: InvestigationCase) -> ProviderRecommendation:
+    async def recommend(
+        self,
+        case: InvestigationCase,
+        *,
+        tool_outcomes: list[ToolCallOutcome] | None = None,
+    ) -> ProviderRecommendation:
         output_retry_count = 0
         while True:
             try:
-                result = await self._provider.recommend(case)
-                self._validate_case_grounding(case, result.recommendation)
+                result = await self._provider.recommend(
+                    case,
+                    tool_outcomes=tool_outcomes,
+                )
+                self._validate_case_grounding(
+                    case,
+                    result.recommendation,
+                    tool_outcomes=tool_outcomes,
+                )
             except RecommendationInvalidOutputError:
                 if output_retry_count >= self._max_output_retries:
                     raise
@@ -111,6 +129,8 @@ class RecommendationService:
     def _validate_case_grounding(
         case: InvestigationCase,
         recommendation: ComplianceRecommendation,
+        *,
+        tool_outcomes: list[ToolCallOutcome] | None,
     ) -> None:
         if recommendation.case_id != case.case_id:
             raise RecommendationInvalidOutputError("case_id_mismatch")
@@ -121,11 +141,18 @@ class RecommendationService:
             case.customer.customer_id,
             *(transaction.transaction_id for transaction in case.transactions),
         }
+        allowed_tool_source_ids = {
+            outcome.call_id for outcome in (tool_outcomes or []) if outcome.status == "completed"
+        }
         for evidence in recommendation.evidence:
-            if evidence.source is not EvidenceSource.CASE_INPUT:
+            if evidence.source is EvidenceSource.CASE_INPUT:
+                if evidence.source_id not in allowed_case_source_ids:
+                    raise RecommendationInvalidOutputError("unknown_evidence_id")
+            elif evidence.source is EvidenceSource.TOOL_RESULT:
+                if evidence.source_id not in allowed_tool_source_ids:
+                    raise RecommendationInvalidOutputError("unknown_tool_evidence_id")
+            else:
                 raise RecommendationInvalidOutputError("unsupported_evidence_source")
-            if evidence.source_id not in allowed_case_source_ids:
-                raise RecommendationInvalidOutputError("unknown_evidence_id")
 
         # Policy retrieval is intentionally not implemented until the RAG milestone.
         if recommendation.policy_citations:

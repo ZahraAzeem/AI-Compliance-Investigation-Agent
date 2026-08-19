@@ -351,6 +351,51 @@
           ]
         }
       ]
+    },
+    {
+      "name": "Milestone 5 - Bounded Compliance Tools",
+      "item": [
+        {
+          "name": "Investigate - Plan, Execute Tools, Recommend",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Accept", "value": "application/json"},
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "X-Request-ID", "value": "postman-bounded-investigation"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"case_id\": \"CASE-KYC-2026-001\",\n  \"case_type\": \"kyc_review\",\n  \"priority\": \"high\",\n  \"opened_at\": \"2026-08-15T10:00:00Z\",\n  \"trigger_reason\": \"Synthetic onboarding risk result requires document review.\",\n  \"customer\": {\n    \"customer_id\": \"CUST-KYC-001\",\n    \"full_name\": \"Sample Customer\",\n    \"date_of_birth\": \"1990-05-20\",\n    \"country_of_residence\": \"AE\",\n    \"nationality_codes\": [\"JO\"],\n    \"occupation\": \"Consultant\",\n    \"is_politically_exposed\": false,\n    \"account_opened_at\": \"2026-08-14\",\n    \"existing_risk_level\": \"high\"\n  },\n  \"transactions\": [],\n  \"alert\": {\n    \"alert_id\": \"ALT-KYC-001\",\n    \"customer_id\": \"CUST-KYC-001\",\n    \"created_at\": \"2026-08-15T09:55:00Z\",\n    \"risk_level\": \"high\",\n    \"risk_score\": 84,\n    \"risk_factors\": [\"Synthetic geography and occupation factors\"],\n    \"required_artifacts\": [\"passport\", \"bank_statements_3_months\"],\n    \"control_action\": \"documents_required\",\n    \"summary\": \"Synthetic high-risk onboarding result.\"\n  },\n  \"artifact_reviews\": [\n    {\"artifact\": \"passport\", \"status\": \"provided\"},\n    {\"artifact\": \"bank_statements_3_months\", \"status\": \"requested\"}\n  ]\n}",
+              "options": {"raw": {"language": "json"}}
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/investigations/run",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "investigations", "run"]
+            },
+            "description": "Runs one bounded planning turn, allowlisted local tools, and a final structured recommendation. This request makes provider API calls."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('returns an auditable bounded investigation', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "  const body = pm.response.json();",
+                  "  pm.expect(body.status).to.eql('completed');",
+                  "  pm.expect(body.planning.requested_tool_count).to.be.at.most(4);",
+                  "  pm.expect(body.recommendation.recommendation.human_review_required).to.be.true;",
+                  "  pm.expect(body.human_review_required).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

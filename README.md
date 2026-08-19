@@ -30,6 +30,8 @@ The local API is available at `http://127.0.0.1:8000`:
 - `POST /api/v1/cases/validate` validates a compliance case without storing it or calling AI.
 - `POST /api/v1/alerts/evaluate/transactions` evaluates fictional portfolio rules without AI.
 - `POST /api/v1/recommendations` returns a schema-validated AI recommendation for human review.
+- `POST /api/v1/tools/execute` demonstrates bounded read-only tool execution without AI.
+- `POST /api/v1/investigations/run` runs planning, local tools, and a final recommendation.
 - `GET /docs` opens the generated OpenAPI interface.
 
 ### Milestone 1 curl examples
@@ -122,6 +124,24 @@ This endpoint makes a provider API call, using Groq by default. It uses Structur
 disables provider-side response storage for the request, returns safe model/latency/token
 metadata, and requires human review. It rejects recommendations that cite unknown case IDs or
 claim unsupported tool/policy evidence.
+
+### Milestone 5 curl examples
+
+Run the complete bounded investigation workflow:
+
+```bash
+curl --request POST \
+  --url http://127.0.0.1:8000/api/v1/investigations/run \
+  --header 'Accept: application/json' \
+  --header 'Content-Type: application/json' \
+  --header 'X-Request-ID: bounded-investigation-demo' \
+  --data @examples/sample_case.json
+```
+
+The planning model can request only `lookup_customer_risk` and `summarize_transactions`. The
+application validates arguments, enforces the tool-call limit, prevents duplicate execution, and
+runs the functions locally. A second model call receives the safe results and returns the final
+structured recommendation. The workflow is read-only and never executes account controls.
 
 Run local verification with:
 
