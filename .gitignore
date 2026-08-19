@@ -35,6 +35,7 @@ INTERVIEW_PREP.md
 .postman/
 postman/globals/
 postman/collections/
+postman/environments/
 
 # Local runtime data
 *.log
