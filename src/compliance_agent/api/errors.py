@@ -95,7 +95,7 @@ async def recommendation_exception_handler(
             exc.reason,
             _request_id(request),
         )
-    status_code, code, message = _recommendation_error_details(exc)
+    status_code, code, message = recommendation_error_details(exc)
     body = ErrorResponse(
         error=ErrorDetail(
             code=code,
@@ -106,7 +106,8 @@ async def recommendation_exception_handler(
     return JSONResponse(status_code=status_code, content=body.model_dump())
 
 
-def _recommendation_error_details(exc: RecommendationError) -> tuple[int, str, str]:
+def recommendation_error_details(exc: RecommendationError) -> tuple[int, str, str]:
+    """Return the stable public classification shared by JSON and streaming errors."""
     if isinstance(exc, RecommendationQuotaError):
         return 429, "ai_quota_exhausted", "The AI project has no available API quota."
     if isinstance(exc, RecommendationRateLimitError):
