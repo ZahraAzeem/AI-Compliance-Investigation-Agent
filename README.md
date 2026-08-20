@@ -32,6 +32,7 @@ The local API is available at `http://127.0.0.1:8000`:
 - `POST /api/v1/recommendations` returns a schema-validated AI recommendation for human review.
 - `POST /api/v1/tools/execute` demonstrates bounded read-only tool execution without AI.
 - `POST /api/v1/investigations/run` runs planning, local tools, and a final recommendation.
+- `POST /api/v1/investigations/stream` streams safe progress and the final recommendation as SSE.
 - `GET /docs` opens the generated OpenAPI interface.
 
 ### Milestone 1 curl examples
@@ -142,6 +143,27 @@ The planning model can request only `lookup_customer_risk` and `summarize_transa
 application validates arguments, enforces the tool-call limit, prevents duplicate execution, and
 runs the functions locally. A second model call receives the safe results and returns the final
 structured recommendation. The workflow is read-only and never executes account controls.
+
+### Milestone 6 curl example
+
+Stream investigation progress as Server-Sent Events:
+
+```bash
+curl --no-buffer \
+  --request POST \
+  --url http://127.0.0.1:8000/api/v1/investigations/stream \
+  --header 'Accept: text/event-stream' \
+  --header 'Content-Type: application/json' \
+  --header 'X-Request-ID: streaming-investigation-demo' \
+  --data @examples/sample_case.json
+```
+
+`--no-buffer` tells curl to print each event immediately. The stream sends named `started`,
+`progress`, and `tool_call` events and ends with exactly one `completed` or `failed` event. Progress
+contains application-owned stage information, never private model reasoning. A keep-alive comment
+is sent every 15 seconds while a slow investigation is still running. Because the endpoint needs a
+JSON request body, a browser frontend will consume this POST stream with `fetch()` rather than the
+GET-only native `EventSource` constructor.
 
 Run local verification with:
 
